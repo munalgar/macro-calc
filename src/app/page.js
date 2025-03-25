@@ -1,23 +1,56 @@
 "use client";
-import { useState, useEffect } from "react";
+
+import { useState, useReducer } from "react";
 import "./globals.css";
+
+// Initial state for form values
+const initialState = {
+  sex: "male",
+  age: "",
+  height: "",
+  weight: "",
+  goal: "maintain",
+  bodyFat: "",
+  leanBodyMass: "",
+  jobActivity: "1",
+  unit: "metric",
+  weightLiftingDays: "0",
+  weightLiftingMinutes: "",
+  weightLiftingIntensity: "1.1",
+  cardioDays: "0",
+  cardioMinutes: "",
+  cardioIntensity: "1.1",
+};
+
+// Reducer function to handle state updates
+function formReducer(state, action) {
+  switch (action.type) {
+    case "UPDATE_FIELD":
+      return { ...state, [action.field]: action.value };
+    case "RESET_WEIGHT_LIFTING":
+      return {
+        ...state,
+        weightLiftingDays: action.days,
+        weightLiftingMinutes: "",
+        weightLiftingIntensity: "1.1",
+      };
+    case "RESET_CARDIO":
+      return {
+        ...state,
+        cardioDays: action.days,
+        cardioMinutes: "",
+        cardioIntensity: "1.1",
+      };
+    default:
+      return state;
+  }
+}
+
 export default function MacroCalculator() {
-  // State for form values
-  const [sex, setSex] = useState("male");
-  const [age, setAge] = useState("");
-  const [height, setHeight] = useState("");
-  const [weight, setWeight] = useState("");
-  const [goal, setGoal] = useState("maintain");
-  const [bodyFat, setBodyFat] = useState("");
-  const [leanBodyMass, setLeanBodyMass] = useState("");
-  const [jobActivity, setJobActivity] = useState("1");
-  const [unit, setUnit] = useState("metric");
-  const [weightLiftingDays, setWeightLiftingDays] = useState("0");
-  const [weightLiftingMinutes, setWeightLiftingMinutes] = useState("");
-  const [weightLiftingIntensity, setWeightLiftingIntensity] = useState("1.1");
-  const [cardioDays, setCardioDays] = useState("0");
-  const [cardioMinutes, setCardioMinutes] = useState("");
-  const [cardioIntensity, setCardioIntensity] = useState("1.1"); // State for calculation results
+  // Use reducer for form state management
+  const [formData, dispatch] = useReducer(formReducer, initialState);
+
+  // Output state
   const [showOutput, setShowOutput] = useState(false);
   const [output, setOutput] = useState({
     goal: "",
@@ -28,37 +61,46 @@ export default function MacroCalculator() {
     proteinCalories: 0,
     carbsCalories: 0,
     fatCalories: 0,
-  }); // Handle unit change
+  });
+
+  // Update field handler
+  const updateField = (field, value) => {
+    dispatch({ type: "UPDATE_FIELD", field, value });
+  };
+
+  // Handle unit change
   const updatePlaceholders = (newUnit) => {
-    setUnit(newUnit);
-  }; // Toggle weight lifting details
+    updateField("unit", newUnit);
+  };
+
+  // Toggle weight lifting details
   const toggleWeightLiftingDetails = (days) => {
-    setWeightLiftingDays(days);
-    if (days === "0") {
-      setWeightLiftingMinutes("");
-      setWeightLiftingIntensity("1.1");
-    }
-  }; // Toggle cardio details
+    dispatch({ type: "RESET_WEIGHT_LIFTING", days });
+  };
+
+  // Toggle cardio details
   const toggleCardioDetails = (days) => {
-    setCardioDays(days);
-    if (days === "0") {
-      setCardioMinutes("");
-      setCardioIntensity("1.1");
-    }
-  }; // Calculate macros function
+    dispatch({ type: "RESET_CARDIO", days });
+  };
+
+  // Calculate macros function
   const calculateMacros = () => {
-    // Validation for required fields
-    if (!sex || !age || !height || !weight) {
+    if (
+      !formData.sex ||
+      !formData.age ||
+      !formData.height ||
+      !formData.weight
+    ) {
       alert("Please fill in all required fields: sex, age, height, and weight");
       return;
     }
 
-    if (weightLiftingDays > 0 && !weightLiftingMinutes) {
+    if (formData.weightLiftingDays > 0 && !formData.weightLiftingMinutes) {
       alert("Please fill in weight lifting minutes");
       return;
     }
 
-    if (cardioDays > 0 && !cardioMinutes) {
+    if (formData.cardioDays > 0 && !formData.cardioMinutes) {
       alert("Please fill in cardio minutes");
       return;
     }
@@ -70,64 +112,69 @@ export default function MacroCalculator() {
     };
 
     const weightLiftingCaloriesPerDay =
-      weightLiftingDays > 0
-        ? (parseInt(weightLiftingMinutes) * 3 * parseInt(weightLiftingDays)) / 7
+      formData.weightLiftingDays > 0
+        ? (parseInt(formData.weightLiftingMinutes) *
+            3 *
+            parseInt(formData.weightLiftingDays)) /
+          7
         : 0;
 
     const cardioCaloriesPerDay =
-      cardioDays > 0
-        ? (parseInt(cardioMinutes) * 5 * parseInt(cardioDays)) / 7
+      formData.cardioDays > 0
+        ? (parseInt(formData.cardioMinutes) *
+            5 *
+            parseInt(formData.cardioDays)) /
+          7
         : 0;
 
     let heightInCm, weightInKg;
-    if (unit === "imperial") {
-      heightInCm = parseFloat(height) * 2.54;
-      weightInKg = parseFloat(weight) * 0.453592;
+    if (formData.unit === "imperial") {
+      heightInCm = parseFloat(formData.height) * 2.54;
+      weightInKg = parseFloat(formData.weight) * 0.453592;
     } else {
-      heightInCm = parseFloat(height);
-      weightInKg = parseFloat(weight);
+      heightInCm = parseFloat(formData.height);
+      weightInKg = parseFloat(formData.weight);
     }
 
-    // Calculate BMR
     let BMR;
-    if (sex === "male") {
+    if (formData.sex === "male") {
       BMR =
         88.362 +
         13.397 * weightInKg +
         4.799 * heightInCm -
-        5.677 * parseInt(age);
+        5.677 * parseInt(formData.age);
     } else {
       BMR =
         447.593 +
         9.247 * weightInKg +
         3.098 * heightInCm -
-        4.33 * parseInt(age);
+        4.33 * parseInt(formData.age);
     }
 
-    // Calculate Lean Body Mass
-    let LBM = parseFloat(leanBodyMass);
-    const BF = parseFloat(bodyFat);
+    let LBM = parseFloat(formData.leanBodyMass);
+    const BF = parseFloat(formData.bodyFat);
 
     if (!isNaN(LBM)) {
       // Use user-provided LBM
     } else if (!isNaN(BF)) {
-      // Calculate LBM from body fat
       LBM = (1 - BF / 100) * weightInKg;
     } else {
-      // Default estimates
-      LBM = sex === "male" ? (1 - 0.12) * weightInKg : (1 - 0.25) * weightInKg;
+      LBM =
+        formData.sex === "male"
+          ? (1 - 0.12) * weightInKg
+          : (1 - 0.25) * weightInKg;
     }
 
-    // Activity multipliers
-    const jobActivityMultiplier = parseFloat(jobActivity) + 0.2;
+    const jobActivityMultiplier = parseFloat(formData.jobActivity) + 0.2;
     const weightLiftingMultiplier =
-      parseInt(weightLiftingDays) > 0
-        ? parseFloat(weightLiftingIntensity) + 0.2
+      parseInt(formData.weightLiftingDays) > 0
+        ? parseFloat(formData.weightLiftingIntensity) + 0.2
         : 1.0;
     const cardioMultiplier =
-      parseInt(cardioDays) > 0 ? parseFloat(cardioIntensity) + 0.2 : 1.0;
+      parseInt(formData.cardioDays) > 0
+        ? parseFloat(formData.cardioIntensity) + 0.2
+        : 1.0;
 
-    // Calculate weighted activity multiplier
     const weightedActivityMultiplier =
       0.2 * jobActivityMultiplier +
       0.35 * weightLiftingMultiplier +
@@ -138,14 +185,12 @@ export default function MacroCalculator() {
       weightLiftingCaloriesPerDay +
       cardioCaloriesPerDay;
 
-    // Adjust calories based on goal
-    if (goal === "gain") {
-      calories += 500; // add 500 calories for weight gain
-    } else if (goal === "lose") {
-      calories -= 500; // subtract 500 calories for weight loss
+    if (formData.goal === "gain") {
+      calories += 500;
+    } else if (formData.goal === "lose") {
+      calories -= 500;
     }
 
-    // Calculate macros
     let protein = LBM * 2.2;
     let proteinCalories = protein * caloriesPerGram.protein;
     let fat = weightInKg * 1;
@@ -157,9 +202,8 @@ export default function MacroCalculator() {
       caloriesPerGram.carbs;
     let carbCalories = carbs * caloriesPerGram.carbs;
 
-    // Update goal text
     let goalText;
-    switch (goal) {
+    switch (formData.goal) {
       case "gain":
         goalText = "Weight Gain";
         break;
@@ -183,6 +227,7 @@ export default function MacroCalculator() {
 
     setShowOutput(true);
   };
+
   return (
     <main className="container">
       <h1>Macro Calculator</h1>
@@ -193,15 +238,15 @@ export default function MacroCalculator() {
           <div className="unit-toggle">
             <button
               onClick={() => updatePlaceholders("imperial")}
-              className={unit === "imperial" ? "selected" : ""}
-              aria-pressed={unit === "imperial"}
+              className={formData.unit === "imperial" ? "selected" : ""}
+              aria-pressed={formData.unit === "imperial"}
             >
               Imperial
             </button>
             <button
               onClick={() => updatePlaceholders("metric")}
-              className={unit === "metric" ? "selected" : ""}
-              aria-pressed={unit === "metric"}
+              className={formData.unit === "metric" ? "selected" : ""}
+              aria-pressed={formData.unit === "metric"}
             >
               Metric
             </button>
@@ -210,7 +255,11 @@ export default function MacroCalculator() {
 
         <div className="form-group">
           <label htmlFor="sex">Sex:</label>
-          <select id="sex" value={sex} onChange={(e) => setSex(e.target.value)}>
+          <select
+            id="sex"
+            value={formData.sex}
+            onChange={(e) => updateField("sex", e.target.value)}
+          >
             <option value="male">Male</option>
             <option value="female">Female</option>
           </select>
@@ -224,8 +273,8 @@ export default function MacroCalculator() {
             min="18"
             max="120"
             placeholder="Age (years)"
-            value={age}
-            onChange={(e) => setAge(e.target.value)}
+            value={formData.age}
+            onChange={(e) => updateField("age", e.target.value)}
           />
         </div>
 
@@ -237,10 +286,10 @@ export default function MacroCalculator() {
             min="1"
             step="0.01"
             placeholder={
-              unit === "imperial" ? "Height (inches)" : "Height (cm)"
+              formData.unit === "imperial" ? "Height (inches)" : "Height (cm)"
             }
-            value={height}
-            onChange={(e) => setHeight(e.target.value)}
+            value={formData.height}
+            onChange={(e) => updateField("height", e.target.value)}
           />
         </div>
 
@@ -251,9 +300,11 @@ export default function MacroCalculator() {
             id="weight"
             min="1"
             step="0.01"
-            placeholder={unit === "imperial" ? "Weight (lbs)" : "Weight (kg)"}
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
+            placeholder={
+              formData.unit === "imperial" ? "Weight (lbs)" : "Weight (kg)"
+            }
+            value={formData.weight}
+            onChange={(e) => updateField("weight", e.target.value)}
           />
         </div>
 
@@ -261,8 +312,8 @@ export default function MacroCalculator() {
           <label htmlFor="goal">Goal:</label>
           <select
             id="goal"
-            value={goal}
-            onChange={(e) => setGoal(e.target.value)}
+            value={formData.goal}
+            onChange={(e) => updateField("goal", e.target.value)}
           >
             <option value="maintain">Maintain weight</option>
             <option value="gain">Gain weight</option>
@@ -279,8 +330,8 @@ export default function MacroCalculator() {
             max="100"
             step="0.1"
             placeholder="Body fat (%)"
-            value={bodyFat}
-            onChange={(e) => setBodyFat(e.target.value)}
+            value={formData.bodyFat}
+            onChange={(e) => updateField("bodyFat", e.target.value)}
           />
         </div>
 
@@ -291,9 +342,11 @@ export default function MacroCalculator() {
             id="lean-body-mass"
             min="1"
             step="0.1"
-            placeholder={unit === "imperial" ? "LBM (lbs)" : "LBM (kg)"}
-            value={leanBodyMass}
-            onChange={(e) => setLeanBodyMass(e.target.value)}
+            placeholder={
+              formData.unit === "imperial" ? "LBM (lbs)" : "LBM (kg)"
+            }
+            value={formData.leanBodyMass}
+            onChange={(e) => updateField("leanBodyMass", e.target.value)}
           />
         </div>
 
@@ -301,8 +354,8 @@ export default function MacroCalculator() {
           <label htmlFor="job-activity">Job Activity:</label>
           <select
             id="job-activity"
-            value={jobActivity}
-            onChange={(e) => setJobActivity(e.target.value)}
+            value={formData.jobActivity}
+            onChange={(e) => updateField("jobActivity", e.target.value)}
           >
             <option value="1">Sedentary (desk job, work from home)</option>
             <option value="1.2">Lightly active (teacher, host, usher)</option>
@@ -321,7 +374,7 @@ export default function MacroCalculator() {
           </label>
           <select
             id="weight-lifting-days"
-            value={weightLiftingDays}
+            value={formData.weightLiftingDays}
             onChange={(e) => toggleWeightLiftingDetails(e.target.value)}
           >
             <option value="0">0</option>
@@ -335,7 +388,7 @@ export default function MacroCalculator() {
           </select>
         </div>
 
-        {weightLiftingDays > 0 && (
+        {formData.weightLiftingDays > 0 && (
           <div className="nested-inputs">
             <div className="form-group">
               <label htmlFor="weight-lifting-minutes">
@@ -347,8 +400,10 @@ export default function MacroCalculator() {
                 min="1"
                 max="240"
                 placeholder="Minutes"
-                value={weightLiftingMinutes}
-                onChange={(e) => setWeightLiftingMinutes(e.target.value)}
+                value={formData.weightLiftingMinutes}
+                onChange={(e) =>
+                  updateField("weightLiftingMinutes", e.target.value)
+                }
               />
             </div>
 
@@ -356,8 +411,10 @@ export default function MacroCalculator() {
               <label htmlFor="weight-lifting-intensity">Intensity:</label>
               <select
                 id="weight-lifting-intensity"
-                value={weightLiftingIntensity}
-                onChange={(e) => setWeightLiftingIntensity(e.target.value)}
+                value={formData.weightLiftingIntensity}
+                onChange={(e) =>
+                  updateField("weightLiftingIntensity", e.target.value)
+                }
               >
                 <option value="1.1">Light (can carry a conversation)</option>
                 <option value="1.2">Moderate (slightly challenging)</option>
@@ -372,7 +429,7 @@ export default function MacroCalculator() {
           <label htmlFor="cardio-days">Cardio (days per week):</label>
           <select
             id="cardio-days"
-            value={cardioDays}
+            value={formData.cardioDays}
             onChange={(e) => toggleCardioDetails(e.target.value)}
           >
             <option value="0">0</option>
@@ -386,7 +443,7 @@ export default function MacroCalculator() {
           </select>
         </div>
 
-        {cardioDays > 0 && (
+        {formData.cardioDays > 0 && (
           <div className="nested-inputs">
             <div className="form-group">
               <label htmlFor="cardio-minutes">Minutes per session:</label>
@@ -396,8 +453,8 @@ export default function MacroCalculator() {
                 min="1"
                 max="240"
                 placeholder="Minutes"
-                value={cardioMinutes}
-                onChange={(e) => setCardioMinutes(e.target.value)}
+                value={formData.cardioMinutes}
+                onChange={(e) => updateField("cardioMinutes", e.target.value)}
               />
             </div>
 
@@ -405,8 +462,8 @@ export default function MacroCalculator() {
               <label htmlFor="cardio-intensity">Intensity:</label>
               <select
                 id="cardio-intensity"
-                value={cardioIntensity}
-                onChange={(e) => setCardioIntensity(e.target.value)}
+                value={formData.cardioIntensity}
+                onChange={(e) => updateField("cardioIntensity", e.target.value)}
               >
                 <option value="1.1">Light (can carry a conversation)</option>
                 <option value="1.2">Moderate (slightly challenging)</option>
