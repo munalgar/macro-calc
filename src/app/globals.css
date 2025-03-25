@@ -1,42 +1,220 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f5f5f5;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+h1 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 30px;
+}
+
+.calculator-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  margin-bottom: 30px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  text-align: center;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.form-group input,
+.form-group select,
+.unit-toggle {
+  text-align: center;
+  width: 100%;
+  max-width: 300px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
+.details-section {
+  margin-left: 20px;
+  padding-left: 10px;
+  border-left: 3px solid #e0e0e0;
+}
+
+button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: block;
+  margin: 20px auto;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+.hidden {
+  display: none;
+}
+
+.center-text {
+  text-align: center;
+}
+
+/* Output Section */
+#output {
+  background-color: #2c3e50;
+  color: white;
+  padding: 25px;
+  border-radius: 8px;
+  margin-top: 30px;
+}
+
+#output h2 {
+  color: #3498db;
+  margin-top: 0;
+}
+
+#output p {
+  font-size: 18px;
+  margin: 15px 0;
+}
+
+#output span {
+  font-weight: bold;
+  color: #2ecc71;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+  .calculator-container {
+    padding: 15px;
+  }
+
+  .form-group input,
+  .form-group select {
+    font-size: 14px;
+  }
+
+  button {
+    width: 100%;
   }
 }
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+/* Two Column Layout for Larger Screens */
+@media (min-width: 768px) {
+  .form-row {
+    display: flex;
+    gap: 20px;
   }
+
+  .form-row .form-group {
+    flex: 1;
+  }
+}
+
+.unit-toggle {
+  display: flex;
+  border-radius: 4px;
+  overflow: hidden;
+  width: fit-content;
+  margin: 0 auto; /* This centers the toggle horizontally */
+  gap: 8px; /* Add spacing between buttons */
+}
+
+.unit-toggle button {
+  padding: 8px 16px;
+  border: none;
+  background-color: #f1f1f1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  min-width: 80px;
+  border-radius: 4px; /* Individual rounded corners for each button */
+}
+
+/* Remove the border between buttons since we now have gap */
+.unit-toggle button:first-child {
+  /* border-right: 1px solid #ccc; */
+}
+
+.unit-toggle button.selected {
+  background-color: #4a90e2;
+  color: white;
+  font-weight: bold;
+}
+
+.unit-toggle button:hover:not(.selected) {
+  background-color: #e0e0e0;
+}
+
+.unit-toggle button:active {
+  transform: scale(0.98);
+}
+
+.center-label {
+  display: block;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+/* Center all content */
+.container {
+  text-align: center;
+}
+
+/* Center nested inputs */
+.nested-inputs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* Small text helper */
+.form-group small {
+  text-align: center;
+  display: block;
+}
+
+/* Output container elements */
+.output-container {
+  text-align: center;
+}
+
+.macro-result p {
+  text-align: center;
+}
+
+/* Center text in chart bars */
+.chart-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
