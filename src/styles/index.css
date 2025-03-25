@@ -1,0 +1,11 @@
+/* Base styles */
+@import "./base.css";
+
+/* Form styles */
+@import "./form.css";
+
+/* Output result styles */
+@import "./output.css";
+
+/* Chart and visualization styles */
+@import "./charts.css";
