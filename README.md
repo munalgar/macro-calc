@@ -15,8 +15,6 @@ A personalized macro nutrition calculator built with Next.js that helps users de
 
 - [Next.js](https://nextjs.org/) - React framework with App Router
 - [React](https://react.dev/) - UI library
-- [Framer Motion](https://www.framer.com/motion/) - Animations
-- [React Icons](https://react-icons.github.io/react-icons/) - Icon library
 
 ## Getting Started
 
