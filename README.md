@@ -15,6 +15,8 @@ A personalized macro nutrition calculator built with Next.js that helps users de
 
 - [Next.js](https://nextjs.org/) - React framework with App Router
 - [React](https://react.dev/) - UI library
+- [Framer Motion](https://www.framer.com/motion/) - Animations
+- [React Icons](https://react-icons.github.io/react-icons/) - Icon library
 
 ## Getting Started
 
@@ -62,10 +64,54 @@ It then calculates your:
 - Total Daily Energy Expenditure (TDEE)
 - Optimal macronutrient distribution based on your selected goal
 
+## Calculation Methods
+
+The calculator uses the following mathematical formulas:
+
+### Basal Metabolic Rate (BMR)
+
+Uses the Mifflin-St Jeor equation:
+
+- **Male**: BMR = 88.362 + (13.397 × weight in kg) + (4.799 × height in cm) - (5.677 × age)
+- **Female**: BMR = 447.593 + (9.247 × weight in kg) + (3.098 × height in cm) - (4.33 × age)
+
+### Lean Body Mass (LBM)
+
+- If provided directly: Uses user input
+- If body fat % provided: LBM = (1 - BF/100) × weight in kg
+- Default estimates: 15% body fat for males, 25% for females
+
+### Total Daily Energy Expenditure (TDEE)
+
+TDEE = BMR × Activity Multiplier + Exercise Calories
+
+Where Activity Multiplier is calculated from:
+
+- Job activity level (sedentary to very active)
+- Workout frequency, duration, and intensity
+
+### Goal-Based Calorie Adjustment
+
+- **Weight Gain**: Calories = TDEE × 1.15 (15% surplus)
+- **Weight Loss**: Calories = TDEE × 0.8 (20% deficit, minimum 1200 calories)
+- **Maintenance**: Calories = TDEE
+
+### Macronutrient Distribution
+
+- **Protein**: LBM × protein factor (varies by goal and preference)
+- **Fat**: Maximum of (weight in kg × 0.8) or (25% of total calories ÷ 9)
+- **Carbs**: Remaining calories ÷ 4
+
+Each macro provides different caloric values:
+
+- Protein: 4 calories per gram
+- Carbohydrates: 4 calories per gram
+- Fat: 9 calories per gram
+
 ## Deployment
 
 The application can be easily deployed on [Vercel](https://vercel.com/), the platform from the creators of Next.js.
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the LICENSE file for details.
