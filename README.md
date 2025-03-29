@@ -114,4 +114,4 @@ The application can be easily deployed on [Vercel](https://vercel.com/), the pla
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License.
